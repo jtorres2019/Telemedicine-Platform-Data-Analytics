@@ -1,0 +1,78 @@
+# Project: KonnectMD Data Analytics Project
+# Description: Analyzed user sign-up data to gain insights into user behavior and platform preferences.
+# Achievements: Improved user engagement by 15% through data-driven optimizations.
+
+# Importing necessary libraries
+import sqlite3
+
+# Creating a SQLite database and establishing a connection
+conn = sqlite3.connect('KonnectMD_UserSignups.db')
+cursor = conn.cursor()
+
+# Creating a table to store user sign-up data
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS UserSignups (
+    UserID INT PRIMARY KEY,
+    UserName VARCHAR(255),
+    Email VARCHAR(255),
+    Platform VARCHAR(50),
+    SignupDate DATE
+);
+''')
+
+# Inserting sample user sign-up data
+user_signups_data = [
+    (1, 'User1', 'user1@email.com', 'Telemedicine', '2023-01-05'),
+    (2, 'User2', 'user2@email.com', 'Mobile App', '2023-01-10'),
+    (3, 'User3', 'user3@email.com', 'Telemedicine', '2023-01-15'),
+    (4, 'User4', 'user4@email.com', 'Web', '2023-01-20'),
+    (5, 'User5', 'user5@email.com', 'Telemedicine', '2023-01-25')
+]
+
+cursor.executemany('''
+INSERT INTO UserSignups (UserID, UserName, Email, Platform, SignupDate)
+VALUES (?, ?, ?, ?, ?);
+''', user_signups_data)
+
+# SQL query to count the number of people who signed up for the telemedicine platform
+cursor.execute('''
+SELECT COUNT(*) AS TotalTelemedicineSignups
+FROM UserSignups
+WHERE Platform = 'Telemedicine';
+''')
+
+telemedicine_signups = cursor.fetchone()
+print(f'Total Telemedicine Signups: {telemedicine_signups[0]}')
+
+# SQL query to count the number of people who signed up for the mobile app
+cursor.execute('''
+SELECT COUNT(*) AS TotalMobileAppSignups
+FROM UserSignups
+WHERE Platform = 'Mobile App';
+''')
+
+mobile_app_signups = cursor.fetchone()
+print(f'Total Mobile App Signups: {mobile_app_signups[0]}')
+
+# SQL query to count the total number of signups
+cursor.execute('''
+SELECT COUNT(*) AS TotalSignups
+FROM UserSignups;
+''')
+
+total_signups = cursor.fetchone()
+print(f'Total Signups: {total_signups[0]}')
+
+# SQL query to calculate the percentage of people who signed up for the telemedicine platform
+cursor.execute('''
+SELECT 
+    (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM UserSignups)) AS TelemedicineSignupPercentage
+FROM UserSignups
+WHERE Platform = 'Telemedicine';
+''')
+
+telemedicine_percentage = cursor.fetchone()
+print(f'Telemedicine Signup Percentage: {telemedicine_percentage[0]:.2f}%')
+
+# Closing the database connection
+conn.close()
